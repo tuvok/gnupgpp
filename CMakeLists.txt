@@ -19,13 +19,21 @@ SET(CMAKE_CXX_STANDARD 14)
 INCLUDE_DIRECTORIES(.)
 
 SET(SOURCES
-
+    GnupgPP.cpp
+    GpgContext.cpp
+    GpgKey.cpp
+    GpgSubKey.cpp
+    GpgUID.cpp
   )
 
 ADD_LIBRARY(${PROJECT_NAME} ${SOURCES})
 
+SET(GPG_LIBS
+    gpgme assuan gpg-error
+)
+
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-#  ${GPGME_VANILLA_LIBRARIES}
+    ${GPG_LIBS}
   )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
