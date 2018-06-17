@@ -7,6 +7,7 @@
 #include <gpgme.h>
 
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace gnupgpp

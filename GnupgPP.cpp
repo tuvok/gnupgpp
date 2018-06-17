@@ -8,7 +8,7 @@ namespace gnupgpp
 
 GnupgPP::GnupgPP()
 {
-    const char* version = gpgme_check_version(nullptr);
+    /*const char* version =*/ gpgme_check_version(nullptr);
 
 //    gpgme_set_locale (NULL, LC_CTYPE, setlocale (LC_CTYPE, NULL));
 //  #ifdef LC_MESSAGES

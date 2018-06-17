@@ -30,28 +30,42 @@ gpgme_validity_t GpgUID::getValidity() const
 
 std::string GpgUID::getUid() const
 {
-    return uid->uid;
+    if (uid->uid)
+        return uid->uid;
+
+    return {};
 }
 
 std::string GpgUID::getName() const
 {
-    return uid->name;
+    if (uid->name)
+        return uid->name;
+
+    return {};
 }
 
 std::string GpgUID::getEmail() const
 {
-    return uid->email;
+    if (uid->email)
+        return uid->email;
+
+    return {};
 }
 
 std::string GpgUID::getComment() const
 {
-    return uid->comment;
+    if (uid->comment)
+        return uid->comment;
+
+    return {};
 }
 
-std::string GpgUID::getAddress() const
+/*std::string GpgUID::getAddress() const
 {
-    return uid->address;
-}
+    if (uid->address)
+        return uid->address;
+
+        }*/
 
 } /* namespace gnupgpp */
 

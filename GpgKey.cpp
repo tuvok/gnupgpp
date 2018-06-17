@@ -86,6 +86,16 @@ gpgme_validity_t GpgKey::getOwnerTrust() const
 
 std::vector<GpgSubKey> GpgKey::getSubkeys() const
 {
+    std::vector<GpgSubKey> result;
+    
+    gpgme_subkey_t skey = key->subkeys;
+    while(skey)
+    {
+        result.push_back(skey);
+        skey = skey->next;
+    }
+
+    return result;
 }
 
 std::vector<GpgUID> GpgKey::getUids() const

@@ -20,6 +20,8 @@ GpgContext::GpgContext()
         throw std::runtime_error("GpgContext(): GPGME not initialized");
     case GPG_ERR_SELFTEST_FAILED:
         throw std::runtime_error("GpgContext(): GPGME selftest failed");
+    default:
+        throw std::runtime_error("GpgContext(): unknown problem");
     }
 }
 

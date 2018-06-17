@@ -21,7 +21,7 @@ public:
     std::string getName() const;
     std::string getEmail() const;
     std::string getComment() const;
-    std::string getAddress() const;
+//    std::string getAddress() const;
 
 private:
     gpgme_user_id_t uid;
