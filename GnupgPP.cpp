@@ -21,7 +21,7 @@ GnupgPP::~GnupgPP()
 
 }
 
-gnupgpp::GpgContext GnupgPP::createContext()
+gnupgpp::GpgContext GnupgPP::createContext() const
 {
     return GpgContext();
 }

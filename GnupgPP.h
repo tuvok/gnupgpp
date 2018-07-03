@@ -12,7 +12,7 @@ public:
     GnupgPP();
     virtual ~GnupgPP();
 
-    gnupgpp::GpgContext createContext();
+    gnupgpp::GpgContext createContext() const;
 
 };
 
