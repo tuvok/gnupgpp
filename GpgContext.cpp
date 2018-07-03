@@ -63,4 +63,19 @@ std::vector<GpgKey> GpgContext::listSecretKeys()
     return result;
 }
 
+std::shared_ptr<GpgKey> GpgContext::getKey(std::string fingerprint, bool secret)
+{
+    gpgme_err_code_t err;
+    std::shared_ptr<GpgKey> result(new GpgKey(
+        [this, &err, &fingerprint, &secret] (gpgme_key_t* key) -> void
+        {
+            err = gpg_err_code(gpgme_get_key(ctx, fingerprint.c_str(), key, secret));
+        }));
+
+    if (err != GPG_ERR_NO_ERROR)
+        return nullptr;
+
+    return result;
+}
+
 } /* namespace gnupgpp */

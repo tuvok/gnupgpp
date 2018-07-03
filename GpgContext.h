@@ -5,6 +5,7 @@
 
 #include <gpgme.h>
 
+#include <memory>
 #include <vector>
 
 namespace gnupgpp
@@ -19,6 +20,7 @@ public:
     virtual ~GpgContext();
 
     std::vector<GpgKey> listSecretKeys();
+    std::shared_ptr<GpgKey> getKey(std::string fingerprint, bool secret = false);
 
 private:
     GpgContext();
