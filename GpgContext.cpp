@@ -30,6 +30,11 @@ GpgContext::~GpgContext()
     gpgme_release(ctx);
 }
 
+void GpgContext::setArmor(bool armor)
+{
+    gpgme_set_armor(ctx, armor);
+}
+
 std::vector<GpgKey> GpgContext::listSecretKeys()
 {
 
@@ -76,6 +81,57 @@ std::shared_ptr<GpgKey> GpgContext::getKey(std::string fingerprint, bool secret)
         return nullptr;
 
     return result;
+}
+
+std::string GpgContext::encrypt(const std::string& data, std::shared_ptr<GpgKey> key)
+{
+    gpgme_data_t dataBuffer;
+    if (gpg_err_code(gpgme_data_new_from_mem(&dataBuffer, data.c_str(),
+                data.length(), 0)) != GPG_ERR_NO_ERROR)
+    {
+        throw std::runtime_error("encrypt(): failed to create data buffer");
+    }
+
+    gpgme_data_t cipherBuffer;
+    if (gpg_err_code(gpgme_data_new(&cipherBuffer)) != GPG_ERR_NO_ERROR)
+    {
+        gpgme_data_release(dataBuffer);
+        throw std::runtime_error("encrypt(): failed to create cipher buffer");
+    }
+
+    gpgme_key_t keys[2] = {**key, 0};
+    try
+    {
+        switch (gpg_err_code(gpgme_op_encrypt(ctx, keys, GPGME_ENCRYPT_NO_COMPRESS,
+                    dataBuffer, cipherBuffer)))
+        {
+        case GPG_ERR_NO_ERROR:
+            break;
+        case GPG_ERR_INV_VALUE:
+            throw std::runtime_error("encrypt(): invalid pointer[s] supplied");
+        case GPG_ERR_UNUSABLE_PUBKEY:
+            throw std::runtime_error("encrypt(): unusable public key");
+        case GPG_ERR_BAD_PASSPHRASE:
+            throw std::runtime_error("encrypt(): invalid passphrase");
+        default:
+            throw std::runtime_error("encrypt(): unknown problem");
+        }
+
+        size_t len = 0;
+        char* buf = gpgme_data_release_and_get_mem(cipherBuffer, &len);
+
+        std::string cipher(buf, len);
+
+        gpgme_free(buf);
+
+        return cipher;
+    }
+    catch (...)
+    {
+        gpgme_data_release(dataBuffer);
+        gpgme_data_release(cipherBuffer);
+        throw;
+    }
 }
 
 } /* namespace gnupgpp */
