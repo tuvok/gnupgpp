@@ -83,6 +83,62 @@ std::shared_ptr<GpgKey> GpgContext::getKey(std::string fingerprint, bool secret)
     return result;
 }
 
+std::string GpgContext::decrypt(const std::string& data)
+{
+    gpgme_data_t cipherBuffer;
+    if (gpg_err_code(gpgme_data_new_from_mem(&cipherBuffer, data.c_str(),
+                data.length(), 0)) != GPG_ERR_NO_ERROR)
+    {
+        throw std::runtime_error("decrypt(): failed to create cipher buffer");
+    }
+
+    gpgme_data_t dataBuffer;
+    if (gpg_err_code(gpgme_data_new(&dataBuffer)) != GPG_ERR_NO_ERROR)
+    {
+        gpgme_data_release(cipherBuffer);
+        throw std::runtime_error("decrypt(): failed to create data buffer");
+    }
+
+    try
+    {
+        switch(gpg_err_code(gpgme_op_decrypt_verify(ctx, cipherBuffer, dataBuffer)))
+        {
+            case GPG_ERR_NO_ERROR:
+                break;
+            case GPG_ERR_INV_VALUE:
+                throw std::runtime_error("decrypt(): invalid pointer[s] supplied");
+            case GPG_ERR_NO_DATA:
+                throw std::runtime_error("decrypt(): no data to decrypt");
+            case GPG_ERR_DECRYPT_FAILED:
+                throw std::runtime_error("decrypt(): decryption failed");
+            case GPG_ERR_BAD_PASSPHRASE:
+                throw std::runtime_error("decrypt(): invalid password");
+            default:
+                throw std::runtime_error("encrypt(): unknown problem");
+        }
+
+        size_t len = 0;
+        char* buf = gpgme_data_release_and_get_mem(dataBuffer, &len);
+
+        std::string decrypted(buf, len);
+
+        gpgme_free(buf);
+        gpgme_data_release(cipherBuffer);
+        return decrypted;
+
+    }
+    catch (...)
+    {
+        gpgme_data_release(dataBuffer);
+        gpgme_data_release(cipherBuffer);
+        throw;
+    }
+
+    return std::string();
+
+    // gpgme_op_decrypt_verify (gpgme_ctx_t ctx, gpgme_data_t cipher, gpgme_data_t plain)
+}
+
 std::string GpgContext::encrypt(const std::string& data, std::shared_ptr<GpgKey> key)
 {
     gpgme_data_t dataBuffer;
@@ -123,6 +179,7 @@ std::string GpgContext::encrypt(const std::string& data, std::shared_ptr<GpgKey>
         std::string cipher(buf, len);
 
         gpgme_free(buf);
+        gpgme_data_release(dataBuffer);
 
         return cipher;
     }

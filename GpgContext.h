@@ -24,6 +24,7 @@ public:
     std::vector<GpgKey> listSecretKeys();
     std::shared_ptr<GpgKey> getKey(std::string fingerprint, bool secret = false);
 
+    std::string decrypt(const std::string& data);
     std::string encrypt(const std::string& data, std::shared_ptr<GpgKey> key);
 
 private:
